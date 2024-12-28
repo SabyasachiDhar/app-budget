@@ -5,7 +5,7 @@ import { Grid, Segment } from 'semantic-ui-react'
 function DisplayBalances(props) {
     const { totalIncome, totalExpense } = props
     return (
-        <div>
+        <div style={{marginBottom: '20px'}}>
             <Segment textAlign='center'>
                 <Grid columns={2} divided>
                     <Grid.Row>

@@ -1,10 +1,12 @@
-import { Container, Grid, Segment } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import { Button, Container, Icon, Modal } from 'semantic-ui-react';
 import './App.css';
 import MainHeader from './components/MainHeader';
-import NewEntryFrom from './components/NewEntryFrom';
+import NewEntryForm from './components/NewEntryForm';
 import DisplayBalance from './components/DisplayBalance';
-import DispayHistory from './components/DispayHistory';
+import DisplayHistory from './components/DisplayHistory';
 import DisplayBalances from './components/DisplayBalances';
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const dummyBudgetData = [
@@ -14,7 +16,6 @@ function App() {
       transactionAction: "Income",
       transactionDate: "2023-07-01",
       transactionValue: 50000,
-      transactionIndex: 0,
       transactionId: "txn001"
     },
     {
@@ -23,7 +24,6 @@ function App() {
       transactionAction: "Expense",
       transactionDate: "2023-07-05",
       transactionValue: 5000,
-      transactionIndex: 1,
       transactionId: "txn002"
     },
     {
@@ -32,7 +32,6 @@ function App() {
       transactionAction: "Expense",
       transactionDate: "2023-07-10",
       transactionValue: 15000,
-      transactionIndex: 2,
       transactionId: "txn003"
     },
     {
@@ -41,7 +40,6 @@ function App() {
       transactionAction: "Income",
       transactionDate: "2023-07-15",
       transactionValue: 10000,
-      transactionIndex: 3,
       transactionId: "txn004"
     },
     {
@@ -50,7 +48,6 @@ function App() {
       transactionAction: "Expense",
       transactionDate: "2023-07-20",
       transactionValue: 3000,
-      transactionIndex: 4,
       transactionId: "txn005"
     },
     {
@@ -59,32 +56,115 @@ function App() {
       transactionAction: "Income",
       transactionDate: "2023-07-25",
       transactionValue: 2000,
-      transactionIndex: 5,
       transactionId: "txn006"
     }
   ];
 
-  const budgetSummary = dummyBudgetData.reduce((acc, transaction) => {
+  const [historyData, setHistoryData] = useState(dummyBudgetData);
+  const [editItem, setEditItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const handleOk = (data) => {
+    if (editItem) {
+      const updatedData = historyData.map(item =>
+        item.transactionId === editItem.transactionId ? {
+          ...item, 
+          transactionId: uuidv4(), 
+          transactionDescription: data.description, 
+          transactionType: data.isIncome ? 'credit' : 'debit', 
+          transactionAction: data.isIncome ? 'Income' : 'Expense', 
+          transactionDate: new Date().toISOString().split('T')[0],
+          transactionValue: data.value
+        } : item
+      );
+      setHistoryData(updatedData);
+      setEditItem(null);
+    } else {
+      const newTransaction = {
+        transactionId: uuidv4(),
+        transactionDescription: data.description,
+        transactionType: data.isIncome ? 'credit' : 'debit',
+        transactionAction: data.isIncome ? 'Income' : 'Expense',
+        transactionDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+        transactionValue: data.value
+      };
+      setHistoryData([newTransaction, ...historyData]);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    const index = historyData.findIndex(item => item.transactionId === itemToDelete);
+    if (index > -1) {
+      const updatedData = [...historyData];
+      updatedData.splice(index, 1);
+      setHistoryData(updatedData);
+    }
+    setIsConfirmModalOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleEdit = (item) => {
+    setEditItem(item);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditItem(null);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+    setItemToDelete(null);
+  };
+
+  const budgetSummary = historyData.reduce((acc, transaction) => {
     if (transaction.transactionAction === 'Income') {
       acc.totalIncome += transaction.transactionValue;
-    }
-    else if (transaction.transactionAction === 'Expense') {
+    } else if (transaction.transactionAction === 'Expense') {
       acc.totalExpense += transaction.transactionValue;
-    } acc.balance = acc.totalIncome - acc.totalExpense;
+    }
+    acc.balance = acc.totalIncome - acc.totalExpense;
     return acc;
-  }, {
-    totalIncome: 0, totalExpense: 0, balance: 0
-  });
+  }, { totalIncome: 0, totalExpense: 0, balance: 0 });
 
-  const {totalIncome, totalExpense, balance} = budgetSummary;
-  
+  const { totalIncome, totalExpense, balance } = budgetSummary;
+
   return (
-    <Container style={{ marginTop: 20, marginBottom: 20 }}> 
+    <Container style={{ paddingTop: 20, paddingBottom: 20 }}>
       <MainHeader title='Budget' />
-      <DisplayBalance balanceLabel='Your Balance' balanceValue={balance} />  
+      <DisplayBalance balanceLabel='Your Balance' balanceValue={balance} />
       <DisplayBalances totalIncome={totalIncome} totalExpense={totalExpense} />
-      <DispayHistory dummyBudgetData={dummyBudgetData} />
-      <NewEntryFrom />
+      <DisplayHistory dummyBudgetData={historyData} handleDelete={handleDelete} handleEdit={handleEdit} />
+      <Modal open={isModalOpen} onClose={closeModal} size='small'>
+        <Modal.Header>Edit Transaction<Button onClick={closeModal} style={{background: 'none', border: 'none'}}><Icon name='close' /></Button></Modal.Header>
+        <Modal.Content>
+          <NewEntryForm handleOk={handleOk} editItem={editItem} />
+        </Modal.Content>
+      </Modal>
+      <Modal open={isConfirmModalOpen} onClose={closeConfirmModal} size='mini'>
+        <Modal.Header>Confirm Deletion</Modal.Header>
+        <Modal.Content>
+          <p>Are you sure you want to delete this transaction?</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color='red' onClick={confirmDelete}>
+            <Icon name='trash' /> Delete
+          </Button>
+          <Button onClick={closeConfirmModal}>
+            Cancel
+          </Button>
+        </Modal.Actions>
+      </Modal>
+      <NewEntryForm handleOk={handleOk} />
     </Container>
   );
 }
