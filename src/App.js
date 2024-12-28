@@ -4,6 +4,7 @@ import MainHeader from './components/MainHeader';
 import NewEntryFrom from './components/NewEntryFrom';
 import DisplayBalance from './components/DisplayBalance';
 import DispayHistory from './components/DispayHistory';
+import DisplayBalances from './components/DisplayBalances';
 
 function App() {
   const dummyBudgetData = [
@@ -81,21 +82,8 @@ function App() {
     <Container style={{ marginTop: 20, marginBottom: 20 }}> 
       <MainHeader title='Budget' />
       <DisplayBalance balanceLabel='Your Balance' balanceValue={balance} />  
-      <Segment textAlign='center'>
-        <Grid columns={2} divided>
-          <Grid.Row>
-            <Grid.Column textAlign='left'>
-              <DisplayBalance balanceLabel='Income' balanceValue={totalIncome} colorType='green'/>  
-            </Grid.Column>
-            <Grid.Column  textAlign='left'>
-              <DisplayBalance balanceLabel='Expenses' balanceValue={totalExpense} colorType='red'/>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-      </Segment>
-
+      <DisplayBalances totalIncome={totalIncome} totalExpense={totalExpense} />
       <DispayHistory dummyBudgetData={dummyBudgetData} />
-      
       <NewEntryFrom />
     </Container>
   );
