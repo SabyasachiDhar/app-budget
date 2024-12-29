@@ -4,11 +4,11 @@ import { Grid, Icon, Segment } from 'semantic-ui-react';
 
 function DispayHistory({ dummyBudgetData, handleDelete, handleEdit }) {
   return (
-    <div>
+    <Segment>
       <MainHeader title='History' />
       {dummyBudgetData && dummyBudgetData.map((data) => (
         <Segment color={data.transactionType === 'credit' ? 'green' : 'red'} key={data.transactionId}>
-          <Grid columns={3} textAlign='center'>
+          <Grid columns={3} textAlign='center' divided>
             <Grid.Row>
               <Grid.Column width={10} textAlign='left'>{data.transactionDescription}</Grid.Column>
               <Grid.Column width={3} textAlign='right'>{data.transactionValue}</Grid.Column>
@@ -24,7 +24,7 @@ function DispayHistory({ dummyBudgetData, handleDelete, handleEdit }) {
           </Grid>
         </Segment>
       ))}
-    </div>
+    </Segment>
   );
 }
 

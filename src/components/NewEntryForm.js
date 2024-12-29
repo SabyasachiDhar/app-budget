@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form } from 'semantic-ui-react';
+import { Button, Form, Segment, Checkbox, Message } from 'semantic-ui-react';
 import ButtonGroupComponent from './ButtonGroupComponent';
 import MainHeader from './MainHeader';
 
-function NewEntryForm({ handleOk, editItem }) {
+function NewEntryForm({ handleOk, editItem, closeModal }) {
   const [description, setDescription] = useState('');
   const [value, setValue] = useState('');
   const [isIncome, setIsIncome] = useState(false);
@@ -52,46 +52,53 @@ function NewEntryForm({ handleOk, editItem }) {
   const isEmpty = !description || value === 0 || (!isIncome && !isExpense);
 
   return (
-    <>
-      <MainHeader title={editItem ? 'Edit transaction' : 'Add new transaction'} />
-      <Form unstackable>
-        <Form.Group style={{ display: 'flex', alignItems: 'end' }}>
+    <Form unstackable>
+      <Segment>
+        <MainHeader title={editItem ? 'Edit transaction' : 'Add new transaction'} />
+        <Form.Group>
           <Form.Input
             icon='tags'
+            width={12}
             value={description}
-            width={8}
             label='Description'
             placeholder='New shiny thing'
             onChange={(e) => setDescription(e.target.value)}
           />
           <Form.Input
-            width={4}
             label='Value'
+            width={4}
             value={value}
             placeholder='100.00'
             icon='dollar'
             iconPosition='left'
             onChange={(e) => setValue(e.target.value)}
           />
-          <Form.Checkbox
-            width={2}
-            label='Is income'
-            checked={isIncome}
-            onChange={() => setIsIncome(!isIncome)}
-            disabled={isExpense}
-          />
-          <Form.Checkbox
-            width={2}
-            label='Is expense'
-            checked={isExpense}
-            onChange={() => setIsExpense(!isExpense)}
-            disabled={isIncome}
-          />
         </Form.Group>
-        <ButtonGroupComponent handleOk={handleSubmitBtn} handleCancel={handleCancelBtn} disabled={isEmpty} />
-        {isError && <p style={{ margin: '20px 0', color: 'red' }}>Error: Unable to add transaction</p>}
-      </Form>
-    </>
+        <Form.Group inline>
+          <Form.Field>
+            <Checkbox
+              label='Is income'
+              checked={isIncome}
+              onChange={() => setIsIncome(!isIncome)}
+              disabled={isExpense}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Checkbox
+              label='Is expense'
+              checked={isExpense}
+              onChange={() => setIsExpense(!isExpense)}
+              disabled={isIncome}
+            />
+          </Form.Field>
+        </Form.Group>
+        <Form.Group style={{ display: 'flex', justifyContent: 'space-between', margin:'0px'}}>
+          {editItem && <Button color='grey' onClick={closeModal}>Close</Button>}
+          <ButtonGroupComponent handleOk={handleSubmitBtn} handleCancel={handleCancelBtn} disabled={isEmpty} isEditItem={editItem} />
+        </Form.Group>
+        {isError && <Message negative content='Error: Unable to add transaction' />}
+      </Segment>
+    </Form>
   );
 }
 

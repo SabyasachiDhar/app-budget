@@ -117,6 +117,7 @@ function App() {
   };
 
   const closeModal = () => {
+    console.log('closeModal');
     setIsModalOpen(false);
     setEditItem(null);
   };
@@ -139,15 +140,15 @@ function App() {
   const { totalIncome, totalExpense, balance } = budgetSummary;
 
   return (
-    <Container style={{ paddingTop: 20, paddingBottom: 20 }}>
+    <Container>
       <MainHeader title='Budget' />
       <DisplayBalance balanceLabel='Your Balance' balanceValue={balance} />
       <DisplayBalances totalIncome={totalIncome} totalExpense={totalExpense} />
       <DisplayHistory dummyBudgetData={historyData} handleDelete={handleDelete} handleEdit={handleEdit} />
       <Modal open={isModalOpen} onClose={closeModal} size='small'>
-        <Modal.Header>Edit Transaction<Button onClick={closeModal} style={{background: 'none', border: 'none'}}><Icon name='close' /></Button></Modal.Header>
+        <Modal.Header>Edit Transaction</Modal.Header>
         <Modal.Content>
-          <NewEntryForm handleOk={handleOk} editItem={editItem} />
+          <NewEntryForm handleOk={handleOk} editItem={editItem} closeModal={closeModal} />
         </Modal.Content>
       </Modal>
       <Modal open={isConfirmModalOpen} onClose={closeConfirmModal} size='mini'>
