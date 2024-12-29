@@ -7,60 +7,13 @@ import DisplayBalance from './components/DisplayBalance';
 import DisplayHistory from './components/DisplayHistory';
 import DisplayBalances from './components/DisplayBalances';
 import { v4 as uuidv4 } from 'uuid';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNewTransaction, editTransaction, deleteTransaction } from './actions/actions';
 
 function App() {
-  const dummyBudgetData = [
-    {
-      transactionDescription: "Salary for July",
-      transactionType: "credit",
-      transactionAction: "Income",
-      transactionDate: "2023-07-01",
-      transactionValue: 50000,
-      transactionId: "txn001"
-    },
-    {
-      transactionDescription: "Grocery shopping",
-      transactionType: "debit",
-      transactionAction: "Expense",
-      transactionDate: "2023-07-05",
-      transactionValue: 5000,
-      transactionId: "txn002"
-    },
-    {
-      transactionDescription: "Rent payment",
-      transactionType: "debit",
-      transactionAction: "Expense",
-      transactionDate: "2023-07-10",
-      transactionValue: 15000,
-      transactionId: "txn003"
-    },
-    {
-      transactionDescription: "Freelance project",
-      transactionType: "credit",
-      transactionAction: "Income",
-      transactionDate: "2023-07-15",
-      transactionValue: 10000,
-      transactionId: "txn004"
-    },
-    {
-      transactionDescription: "Utility bills",
-      transactionType: "debit",
-      transactionAction: "Expense",
-      transactionDate: "2023-07-20",
-      transactionValue: 3000,
-      transactionId: "txn005"
-    },
-    {
-      transactionDescription: "Stock dividends",
-      transactionType: "credit",
-      transactionAction: "Income",
-      transactionDate: "2023-07-25",
-      transactionValue: 2000,
-      transactionId: "txn006"
-    }
-  ];
+  const historyData = useSelector(state => state);
+  const dispatch = useDispatch();
 
-  const [historyData, setHistoryData] = useState(dummyBudgetData);
   const [editItem, setEditItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -68,18 +21,15 @@ function App() {
 
   const handleOk = (data) => {
     if (editItem) {
-      const updatedData = historyData.map(item =>
-        item.transactionId === editItem.transactionId ? {
-          ...item, 
-          transactionId: uuidv4(), 
-          transactionDescription: data.description, 
-          transactionType: data.isIncome ? 'credit' : 'debit', 
-          transactionAction: data.isIncome ? 'Income' : 'Expense', 
-          transactionDate: new Date().toISOString().split('T')[0],
-          transactionValue: data.value
-        } : item
-      );
-      setHistoryData(updatedData);
+      const updatedTransaction = {
+        ...editItem,
+        transactionDescription: data.description,
+        transactionType: data.isIncome ? 'credit' : 'debit',
+        transactionAction: data.isIncome ? 'Income' : 'Expense',
+        transactionDate: new Date().toISOString().split('T')[0],
+        transactionValue: data.value
+      };
+      dispatch(editTransaction(updatedTransaction));
       setEditItem(null);
     } else {
       const newTransaction = {
@@ -90,7 +40,7 @@ function App() {
         transactionDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
         transactionValue: data.value
       };
-      setHistoryData([newTransaction, ...historyData]);
+      dispatch(addNewTransaction(newTransaction));
     }
     setIsModalOpen(false);
   };
@@ -101,12 +51,7 @@ function App() {
   };
 
   const confirmDelete = () => {
-    const index = historyData.findIndex(item => item.transactionId === itemToDelete);
-    if (index > -1) {
-      const updatedData = [...historyData];
-      updatedData.splice(index, 1);
-      setHistoryData(updatedData);
-    }
+    dispatch(deleteTransaction(itemToDelete));
     setIsConfirmModalOpen(false);
     setItemToDelete(null);
   };
@@ -117,7 +62,6 @@ function App() {
   };
 
   const closeModal = () => {
-    console.log('closeModal');
     setIsModalOpen(false);
     setEditItem(null);
   };
@@ -144,7 +88,7 @@ function App() {
       <MainHeader title='Budget' />
       <DisplayBalance balanceLabel='Your Balance' balanceValue={balance} />
       <DisplayBalances totalIncome={totalIncome} totalExpense={totalExpense} />
-      <DisplayHistory dummyBudgetData={historyData} handleDelete={handleDelete} handleEdit={handleEdit} />
+      <DisplayHistory dummyBudgetData={historyData} handleEdit={handleEdit} handleDelete={handleDelete} />
       <Modal open={isModalOpen} onClose={closeModal} size='small'>
         <Modal.Header>Edit Transaction</Modal.Header>
         <Modal.Content>

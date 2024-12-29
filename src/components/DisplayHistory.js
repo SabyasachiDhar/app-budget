@@ -1,11 +1,10 @@
 import React from 'react';
-import MainHeader from './MainHeader';
-import { Grid, Icon, Segment } from 'semantic-ui-react';
+import { Grid, Header, Icon, Segment } from 'semantic-ui-react';
 
-function DispayHistory({ dummyBudgetData, handleDelete, handleEdit }) {
+function DispayHistory({ dummyBudgetData, handleEdit, handleDelete }) {
   return (
     <Segment>
-      <MainHeader title='History' />
+      <Header as='h2'>History</Header>
       {dummyBudgetData && dummyBudgetData.map((data) => (
         <Segment color={data.transactionType === 'credit' ? 'green' : 'red'} key={data.transactionId}>
           <Grid columns={3} textAlign='center' divided>

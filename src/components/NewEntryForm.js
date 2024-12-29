@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Segment, Checkbox, Message } from 'semantic-ui-react';
+import { Button, Form, Segment, Checkbox, Message, Header } from 'semantic-ui-react';
 import ButtonGroupComponent from './ButtonGroupComponent';
-import MainHeader from './MainHeader';
 
 function NewEntryForm({ handleOk, editItem, closeModal }) {
   const [description, setDescription] = useState('');
@@ -54,7 +53,7 @@ function NewEntryForm({ handleOk, editItem, closeModal }) {
   return (
     <Form unstackable>
       <Segment>
-        <MainHeader title={editItem ? 'Edit transaction' : 'Add new transaction'} />
+        <Header as='h2'>{editItem ? 'Edit transaction' : 'Add new transaction'}</Header>
         <Form.Group>
           <Form.Input
             icon='tags'
@@ -92,7 +91,7 @@ function NewEntryForm({ handleOk, editItem, closeModal }) {
             />
           </Form.Field>
         </Form.Group>
-        <Form.Group style={{ display: 'flex', justifyContent: 'space-between', margin:'0px'}}>
+        <Form.Group style={{ display: 'flex', justifyContent: 'space-between', margin: '0px' }}>
           {editItem && <Button color='grey' onClick={closeModal}>Close</Button>}
           <ButtonGroupComponent handleOk={handleSubmitBtn} handleCancel={handleCancelBtn} disabled={isEmpty} isEditItem={editItem} />
         </Form.Group>
